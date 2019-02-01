@@ -140,6 +140,8 @@ class Agent:
                         self.grid.nodes[node].frontier = True
             else:
                 print("out of range: ", node)
+
+
     
 
     def ucs_step(self):
@@ -175,6 +177,7 @@ class Agent:
                     self.previous[node] = current
                     if node == self.goal:
                         self.finished = True
+                        print ("total cost is:", heapq.heappop(self.frontier)[0])   # LOST 1 points for not printing out  >_<
                         return
                     else:
                     	new_cost = self.grid.nodes[node].cost() + curr_cost
@@ -195,6 +198,7 @@ class Agent:
                     		self.grid.nodes[node].frontier = True                    		
             else:
                 print("out of range: ", node)
+
 
     def astar_step(self):
         #define a heuristic function
@@ -233,6 +237,7 @@ class Agent:
                     self.previous[node] = current
                     if node == self.goal:
                         self.finished = True
+                        print ("total cost is:", heapq.heappop(self.frontier)[0]) 
                         return
                     else:
                         print(self.goal, "  now visiting",node)
@@ -245,7 +250,7 @@ class Agent:
                         self.grid.nodes[node].frontier = True
         else:
                 print("out of range: ", node)
-
+         
 
 
 
