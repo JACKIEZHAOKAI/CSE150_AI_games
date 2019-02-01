@@ -1,7 +1,8 @@
-Assignment 1: Grid World
+Grid World
 ======
 
-implement the following search strategies in `methods.py`:
+implemened the following methods
+`methods.py`:
 - DFS
 - BFS
 - Uniform Cost Search
