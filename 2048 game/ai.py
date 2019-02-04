@@ -55,6 +55,7 @@ class Gametree:
 		self.depth_of_tree = depth_of_tree
 
 	def treeGenerator(self,node,isTerminal):	
+		'''generate a level of the tree'''
 
 		if node.getPlayer() == PLAYERS['player']: 
 			# simulate the four possible moves
@@ -76,9 +77,8 @@ class Gametree:
 
 						node.addchildren(child)
 
-
 		elif node.getPlayer() == PLAYERS['computer']:
-                    
+                 
 			currMatrix = copy.deepcopy(node.getMatrix())
 
 			# create a possible set of 2 in each child node
@@ -96,7 +96,6 @@ class Gametree:
 		'''Construct a depth-3 game tree by calling treeGenerator()'''
 		
 		self.treeGenerator(self.root,False) 
-		print ("layer1")
 
 		for child in self.root.getChildren(): 
 			# print ("layer2")
@@ -135,17 +134,18 @@ class Gametree:
 
 		# 1	grow the tree
 		self.growTree(self.root) 
-	
+		
 		# 2	find the path to generate the max value from its subtree
 		maxValue = 0
 		optimal_move = 0
 
+		if len(self.root.getChildren()) is 0:
+			return -1
+
 		for child in self.root.getChildren():
 
 			child_value = self.expectimax(child)
-			# print ("child_move", child.getMovement())
-			# print ("child_value",child_value)
-
+		
 			if child_value > maxValue:
 				maxValue = child_value
 				optimal_move = child.getMovement()
