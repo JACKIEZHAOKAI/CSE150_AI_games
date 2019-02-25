@@ -17,5 +17,8 @@ can do better with alpha-beta pruning
 ```
 
 ## Ref article:
-https://zhuanlan.zhihu.com/p/30458774
+http://iamkush.me/an-artificial-intelligence-for-the-2048-game/
+
+https://www.scribd.com/document/371494515/NieHouAn-AIPlays2048-Report
+
 
