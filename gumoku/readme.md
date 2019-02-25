@@ -26,3 +26,5 @@ TO modify the playing mode, you can access the gomoku.py file
 ## Ref article:
 https://zhuanlan.zhihu.com/p/30458774
 
+http://mcts.ai/pubs/mcts-survey-master.pdf
+
