@@ -9,9 +9,10 @@ corresponding to MCTS.tree_policy(), MCTS.expansion(), state.rollout(), and MCTS
 
 and it will return the optimal move for the player. 
 
-==================
-To run the game,
+
+**To run the game,
   do python3 gomoku.py
+**
 
 gomoku.py calls board.py, and then calls either randplay.py OR mcts.py to select if you want to play with a stupid random AI OR MCTS smart AI. Also, you can enter ENTER in the game to choose random AI plays against with MCTS AI
 
