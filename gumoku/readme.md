@@ -1,9 +1,10 @@
-Grid World
+Gumoku
+=========
 
-implemened the following methods methods.py:
+Apply Monte Carlo Tree Search algorithm to build a tree,
+including majorly four processes:
+  Selection、Expansion、Simulation和Backpropagation
+and return the optimal move for the player. 
 
-DFS
-BFS
-Uniform Cost Search
-A* Search
-the python game starts growing to explore the final goal
+ref article:
+https://zhuanlan.zhihu.com/p/30458774
