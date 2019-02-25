@@ -14,7 +14,10 @@ and it will return the optimal move for the player.
 
 
 ```
-gomoku.py calls board.py, and then calls either randplay.py OR mcts.py to select if you want to play with a stupid random AI OR MCTS smart AI. Also, you can enter ENTER in the game to choose random AI plays against with MCTS AI
+gomoku.py calls board.py, and then calls either randplay.py OR mcts.py to determine
+if you want to play with a stupid random AI OR MCTS smart AI. 
+
+Also, you can enter ENTER in the game to choose random AI plays against with MCTS AI
 
 TO modify the playing mode, you can access the gomoku.py file
 
