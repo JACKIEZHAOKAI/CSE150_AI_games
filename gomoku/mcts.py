@@ -141,10 +141,10 @@ class MCTS:
             # so that will not modify inner properties of child states
             # only want rollout()/default policy() to return the winner in curr state simulation
             copyState = copy.deepcopy(state)
-            winner = copyState .rollout(copyState)
+            winner = copyState.rollout(copyState)
 
             self.backpropagation(state, winner)
-        
+         
         # calc the best child action under curr root state
         maxChild=None
         val = 0
