@@ -9,3 +9,5 @@ searching problem
 gumoku with (MCTS)  monte carlo tree search
 
 Blackjack with Reinforcement Learning
+
+Sudoku with backTracking and constraint solving 
