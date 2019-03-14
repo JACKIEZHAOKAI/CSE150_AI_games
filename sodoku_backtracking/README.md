@@ -16,11 +16,6 @@ solver() make a call to search(), the search() will try to guess value in the sp
 infer() is written in recursion, it remove the guess value from its peer's domain, and then if the domain becomes only one value, we can make the inference, but we also need to make consistent() call to check every time made an inference.
 
 
-More to be done:
-
-Sudoku with SAT 
-Implement an encoding of Sudoku as propositional logic formulas in conjunctive normal forms, and use a state-of-the-art SAT solver to solve. Read the notes.pdf file for more details. The hard1.cnf file in the cnf directory is the encoding of the first hard instance in the code. You need to generate the CNF files, pass them to a SAT solver (see below) to solve, and then parse the output from the SAT solver and plug them back into the original problem and display the solutions.
-
 
 ## Usage
 
