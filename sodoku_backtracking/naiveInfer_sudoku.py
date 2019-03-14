@@ -89,14 +89,16 @@ class Solver:
 		# sigma is the assignment function
 		self.sigma = {}         # a dict of spot and its value        sigma == assignment
 		self.grid = grid
-
+		self.unassignedSpot = []  # PQ list of (spot domain len, spot(x,y)) 
+		
 		# store in sigma if the value is determined in the slot
 		for i in range(1, 10):
 			for j in range(1, 10):
 				if len(self.grid.domains[(i, j)]) == 1:
 					self.sigma[(i, j)] = self.grid.domains[(i, j)][0]
 				else:
-					self.sigma[(i, j)] = 0 
+					self.unassignedSpot.append( (i, j) ) 
+		# heapq.heapify(self.unassignedSpot) 
 
 	def display(self):
 		for i in range(0, 9):
@@ -116,51 +118,56 @@ class Solver:
 # call search to search the problem recursively
 ###################################################################
 	def solve(self):
-		res = self.search(self.sigma, self.grid.domains)
+		res = self.search(self.sigma, self.unassignedSpot)
 		return res
 
 ###################################################################
 # recursive call in DFS to solve the searching problem
 ###################################################################
-	def search(self, assignment, domains):
+	def search(self, assignment, unassignedSpot):
 		# mission completed
-		if 0 not in assignment.values():
+		if(len(assignment) == 81):
 			self.sigma = assignment
 			return True
-	
-		# select an unsigned spot with min domain from unassignedSpot list.
-		n,spot = min((len(domains[s]), s) for s in assignment if assignment[s] == 0)
 
-		infrenceDict={}
-	
-		for value in domains[spot]:
-			
+		# select an unsigned spot with min domain from unassignedSpot list.
+		n,spot = min((len(self.grid.domains[s]), s) for s in unassignedSpot if len(self.grid.domains[s]) > 1)
+
+		for value in self.grid.domains[spot]:
+			# check consistence
 			if self.consistent(spot, value, assignment):
 				# add {spot=value} to assignment, and remove from unassignedSpot
 				assignment[spot] = value  # guess spot to have value
-			
-				copy_domains = copy.deepcopy(domains)
+				unassignedSpot.remove(spot)
+	
 				# inferences ←INFERENCE(unassignedSpot, var , value)
-				infrenceDict, inferSucc = self.infer(spot, assignment, copy_domains)
-			
+				infrenceDict, inferSucc = self.infer(spot, assignment)
+
 				# if inferences not failure then
 				if inferSucc == True:
 
 					# add {inferences=inferencesValue} to assignment, and remove from unassignedSpot
 					for infSpot, infVal in infrenceDict.items():
 						assignment[infSpot] = infVal
+						unassignedSpot.remove(infSpot)
+						# unassignedSpot.remove( (len(self.grid.domains[infSpot]),infSpot) )
 
 					# recursive callr  esult ←BACKTRACK(assignment , unassignedSpot)
-					result = self.search( assignment, copy_domains)	# no need for deepCopy, which is costy
+					result = self.search( assignment,unassignedSpot)	# no need for deepCopy, which is costy
 
-					if result == True: 
+					if result == True:  # totally correct, on the way to mission complete
 						return True
 						
-			# !!!backtrack				
-			assignment[spot] = 0
-			for inference in infrenceDict:
-				assignment[inference] = 0  
-
+					# !!!backtrack
+					# if search failed, Reverse operation add {inferences=inferencesValue} to assignment
+					for infSpot, infVal in infrenceDict.items():
+						assignment.pop(infSpot)
+						unassignedSpot.append(infSpot)
+	
+				# !!!backtrack				
+				assignment.pop(spot)     
+				unassignedSpot.append(spot)
+	
 		return False
 
 
@@ -177,148 +184,69 @@ class Solver:
 
 
 ###################################################################
-	# Naive infer, infer the value only if one empty spot in row/rol/grid
+	# For optimization in searching the value, especially solving hard problems
+	# return a dict of slot with its inference value
 ###################################################################
-	# def infer(self, spot, assignment):
-		
-	# 	infrenceDict = {}  # dict mapping slot to its infer value
-	# 	inferSuccess = True
-
-	# 	# row infer
-	# 	inferValue = [1,2,3,4,5,6,7,8,9]    # list of slot value
-	# 	emptySpots = []    # list of slot/tuple
-	# 	for j in range(1, 10):
-	# 		if (spot[0], j) in assignment:
-	# 			inferValue.remove(assignment[(spot[0], j)])
-	# 		else:
-	# 			emptySpots.append((spot[0], j))
-	# 	if len(emptySpots) == 1:    # only one empty spot, then do inference
-	# 		# again check consistence
-	# 		if self.consistent(emptySpots[0], inferValue[0], assignment) == True:
-	# 			infrenceDict[emptySpots[0]] = inferValue[0]
-	# 		else:
-	# 			inferSuccess = False     # infer conflict
-	# 			return infrenceDict, inferSuccess
-
-	# 	# col infer
-	# 	inferValue = [1,2,3,4,5,6,7,8,9]    # list of slot value
-	# 	emptySpots = []    # list of slot/tuple
-	# 	for i in range(1, 10):
-	# 		if (i, spot[1]) in assignment:
-	# 			inferValue.remove(assignment[(i, spot[1])])
-	# 		else:
-	# 			emptySpots.append((i, spot[1]))
-	# 	if len(emptySpots) == 1:    # only one empty spot, then do inference
-	# 		# again check consistence
-	# 		if self.consistent(emptySpots[0], inferValue[0], assignment) == True:
-	# 			infrenceDict[emptySpots[0]] = inferValue[0]
-	# 		else:
-	# 			inferSuccess = False     # infer conflict
-	# 			return infrenceDict, inferSuccess
-
-	# 	# grid infer
-	# 	rowLowerBound = int((spot[0]-1)/3)*3+1
-	# 	rowUpperBound = rowLowerBound+3
-	# 	colLowerBound = int((spot[1]-1)/3)*3+1		
-	# 	colUpperBound = colLowerBound+3
-
-	# 	inferValue = [1,2,3,4,5,6,7,8,9]
-	# 	emptySpots = [] 
-	# 	for m in range(rowLowerBound, rowUpperBound):
-	# 		for n in range(colLowerBound, colUpperBound):
-	# 			if (m, n) in assignment:
-	# 				inferValue.remove(assignment[(m, n)])
-	# 			else:
-	# 				emptySpots.append((m, n))
-	# 	if len(emptySpots) == 1:    # only one empty spot, then do inference
-	# 		# again check consistence
-	# 		if self.consistent(emptySpots[0], inferValue[0], assignment) == True:
-	# 			infrenceDict[emptySpots[0]] = inferValue[0]
-	# 		else:
-	# 			inferSuccess = False     # infer conflict
-	# 			return infrenceDict, inferSuccess
-
-	# 	return infrenceDict, inferSuccess
-
-
-###################################################################
-# Advanced infer, infer using the remained domain values
-###################################################################
-	def infer(self, guessSpot, assignment, domains):
+	def infer(self, spot, assignment):
 		
 		infrenceDict = {}  # dict mapping slot to its infer value
-		guessValue = assignment[guessSpot]
+		inferSuccess = True
 
-		for peer in self.grid.peers[guessSpot]:
-			if guessValue in domains[peer]:
-				domains[peer].remove(guessValue)
+		# row infer
+		inferValue = [1,2,3,4,5,6,7,8,9]    # list of slot value
+		emptySpots = []    # list of slot/tuple
+		for j in range(1, 10):
+			if (spot[0], j) in assignment:
+				inferValue.remove(assignment[(spot[0], j)])
+			else:
+				emptySpots.append((spot[0], j))
+		if len(emptySpots) == 1:    # only one empty spot, then do inference
+			# again check consistence
+			if self.consistent(emptySpots[0], inferValue[0], assignment) == True:
+				infrenceDict[emptySpots[0]] = inferValue[0]
+			else:
+				inferSuccess = False     # infer conflict
+				return infrenceDict, inferSuccess
 
-		for peer in self.grid.peers[guessSpot]:
-			
-			# conflict value
-			if len(domains[peer]) == 0:
-				return {}, False
+		# col infer
+		inferValue = [1,2,3,4,5,6,7,8,9]    # list of slot value
+		emptySpots = []    # list of slot/tuple
+		for i in range(1, 10):
+			if (i, spot[1]) in assignment:
+				inferValue.remove(assignment[(i, spot[1])])
+			else:
+				emptySpots.append((i, spot[1]))
+		if len(emptySpots) == 1:    # only one empty spot, then do inference
+			# again check consistence
+			if self.consistent(emptySpots[0], inferValue[0], assignment) == True:
+				infrenceDict[emptySpots[0]] = inferValue[0]
+			else:
+				inferSuccess = False     # infer conflict
+				return infrenceDict, inferSuccess
 
-			# try to make inference, if domain reduced to 1 value
-			if len(domains[peer]) == 1 and assignment[peer] == 0:
-				inferVal = domains[peer][0]
+		# grid infer
+		rowLowerBound = int((spot[0]-1)/3)*3+1
+		rowUpperBound = rowLowerBound+3
+		colLowerBound = int((spot[1]-1)/3)*3+1		
+		colUpperBound = colLowerBound+3
 
-				if not self.consistent(peer, inferVal, assignment):
-					return {}, False
-				
-				# make an inference 
-				infrenceDict[peer] = inferVal
-				assignment[peer] = inferVal
-
-				# recursive call to make more inferrence
-				new_inference,valid = self.infer( peer,assignment, domains)
-
-				if valid:
-					for inference in new_inference:
-						infrenceDict[inference] = new_inference[inference]
+		inferValue = [1,2,3,4,5,6,7,8,9]
+		emptySpots = [] 
+		for m in range(rowLowerBound, rowUpperBound):
+			for n in range(colLowerBound, colUpperBound):
+				if (m, n) in assignment:
+					inferValue.remove(assignment[(m, n)])
 				else:
-					assignment[peer] = 0
-					# unassignedSpot.append(peer)
-					return {}, False
-				break
+					emptySpots.append((m, n))
+		if len(emptySpots) == 1:    # only one empty spot, then do inference
+			# again check consistence
+			if self.consistent(emptySpots[0], inferValue[0], assignment) == True:
+				infrenceDict[emptySpots[0]] = inferValue[0]
+			else:
+				inferSuccess = False     # infer conflict
+				return infrenceDict, inferSuccess
 
-		return infrenceDict, True
-
-
-		# while True:
-		# 	canInfer = False
-			
-		# 	for peer in self.grid.peers[guessSpot]:
-		# 		if guessValue in domain[peer]:
-		# 			domain[peer].remove(guessValue)
-
-		# 			# conflict value
-		# 			if len(domain[peer]) == 0:
-		# 				return infrenceDict, False
-
-		# 			# try to make inference
-		# 			if len(domain[peer]) == 1:
-		# 				inferVal = domain[peer][0]
-		# 				combinedDict = {**assignment, **infrenceDict}
-		# 				if self.consistent(peer, inferVal, combinedDict) == False:
-		# 					return infrenceDict, False
-		# 				else: # make an inference 
-		# 					infrenceDict[peer] = inferVal
-		# 					# assignment[peer] = inferVal
-		# 					alreadyInfered.append(peer)
-		# 					canInfer = True
-					
-		# 	if canInfer == False:
-		# 		break
-			
-		# 	for key,value in infrenceDict.items():
-		# 		if key not in alreadyInfered:
-		# 			guessSpot = key
-		# 			guessValue = value
-		# 			break
-
-		# return infrenceDict, True
-
+		return infrenceDict, inferSuccess
 
 
 # all 50 problems 
