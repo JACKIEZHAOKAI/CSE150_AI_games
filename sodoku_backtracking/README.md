@@ -2,7 +2,7 @@
 # Sudoku
 
 
-Apply Backtracking and arc-constrain to solve easy and hard sudoku
+Apply searching, backtracking and constraint propagation to solve easy and hard sudoku
 
 Main Idea:
 init the grid and its domain to a specift value if known already, 
