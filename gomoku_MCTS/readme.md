@@ -1,4 +1,4 @@
-# Gumoku
+# Gomoku
 
 
 Apply Monte Carlo Tree Search algorithm to build a tree,
